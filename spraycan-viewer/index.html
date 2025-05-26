@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Modell Vorschau</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer@latest"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .viewer-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    model-viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      visibility: hidden;
+    }
+
+    #placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+      display: block;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-wrapper">
+    <!-- Platzhalterbild -->
+    <img
+      id="placeholder"
+      src="public/okkio_3d_model_can.png"
+      alt="Platzhalterbild – 3D Modell Can"
+    />
+
+    <!-- 3D Modell -->
+    <model-viewer
+      id="orbit-demo"
+      src="public/SprayCan.glb"
+      alt="3D Modell SprayCan"
+      draco-decoder="https://www.gstatic.com/draco/v1/decoders/"
+      exposure="1"
+      camera-controls
+      disable-zoom
+      disable-pan
+      touch-action="pan-y"
+      ar>
+    </model-viewer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modelViewer = document.getElementById("orbit-demo");
+      const placeholder = document.getElementById("placeholder");
+      const IMAGE_ANIMATION_DURATION = 2000;
+      const animationStart = performance.now();
+
+      modelViewer.cameraOrbit = "0deg 90deg 12m";
+      modelViewer.jumpCameraToGoal();
+
+      requestAnimationFrame(() => {
+        placeholder.style.opacity = "1";
+        placeholder.style.transform = "translateY(0)";
+      });
+
+      const showModelInstant = () => {
+        placeholder.style.display = "none";
+        modelViewer.style.visibility = "visible";
+      };
+
+      modelViewer.addEventListener("load", () => {
+        const elapsed = performance.now() - animationStart;
+        if (elapsed >= IMAGE_ANIMATION_DURATION) {
+          showModelInstant();
+        } else {
+          setTimeout(showModelInstant, IMAGE_ANIMATION_DURATION - elapsed);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
